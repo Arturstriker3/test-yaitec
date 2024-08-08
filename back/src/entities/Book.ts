@@ -11,8 +11,8 @@ export class Book {
   @Column()
   author: string;
 
-  @Column()
-  fileUrl: string;
+  @Column({ type: 'text' })
+  fileBase64: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
