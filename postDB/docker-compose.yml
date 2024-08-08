@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: yatec
+      POSTGRES_DB: yaitec
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

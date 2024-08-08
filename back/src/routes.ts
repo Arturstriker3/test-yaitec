@@ -6,7 +6,7 @@ const routes = Router();
 const protectedRoutes = Router();
 
 // Public
-routes.post('/user', new UserController().create);
+routes.post('/register', new UserController().create);
 routes.post('/login', new UserController().login);
 
 protectedRoutes.use(authMiddleware);

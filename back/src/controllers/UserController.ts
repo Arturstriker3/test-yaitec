@@ -22,7 +22,7 @@ export class UserController {
 
     /**
      * @swagger
-     * /user:
+     * /register:
      *   post:
      *     tags:
      *       - Authentication
@@ -96,7 +96,7 @@ export class UserController {
      *     tags:
      *       - Authentication
      *     summary: Authenticates a user and returns a JWT token
-     *     description: Authenticates the user in and returns a JWT token for acess others routes
+     *     description: Authenticates the user and returns a JWT token for accessing other routes.
      *     requestBody:
      *       required: true
      *       content:
@@ -118,14 +118,23 @@ export class UserController {
      *             schema:
      *               type: object
      *               properties:
-    *                     user:
-    *                       type: string
-    *                       example: john.doe@example.com
-    *                     token:
-    *                       type: string
-    *                       example: jwt-token
+     *                 user:
+     *                   type: object
+     *                   properties:
+     *                     id:
+     *                       type: integer
+     *                       example: 1
+     *                     name:
+     *                       type: string
+     *                       example: John Doe
+     *                     email:
+     *                       type: string
+     *                       example: john.doe@example.com
+     *                 token:
+     *                   type: string
+     *                   example: jwt-token
      *       400:
-     *         description: E-mail or Password invalid
+     *         description: E-mail or password invalid
      */
 
     async login(req: Request, res: Response, next: NextFunction) {
