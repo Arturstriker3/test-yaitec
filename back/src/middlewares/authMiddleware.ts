@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from "express"
-import { userRepository } from "../repositories/userRepositories";
-import { UnauthorizedError } from "../helpers/api-errors";
+import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
+import { UnauthorizedError } from "../helpers/api-errors";
+import { userRepository } from "../repositories/userRepositories";
 
-type jwtPayload = {
+type JwtPayload = {
     id: number;
 }
 
@@ -12,25 +12,25 @@ export const authMiddleware = async (
     res: Response,
     next: NextFunction
 ) => {
-        const { authorization } = req.headers
+    const { authorization } = req.headers;
 
-        if (!authorization) {
-            throw new UnauthorizedError('Not Authorized');
-        }
+    if (!authorization) {
+        return next(new UnauthorizedError('Not Authorized'));
+    }
 
-        const token = authorization.split(' ')[1];
+    const token = authorization.split(' ')[1];
 
-        const { id } = jwt.verify(token, process.env.JWT_SECRET ?? '') as jwtPayload;
+    const { id } = jwt.verify(token, process.env.JWT_SECRET ?? '') as JwtPayload;
 
-        const user = await userRepository.findOneBy({ id });
+    const user = await userRepository.findOneBy({ id });
 
-        if (!user) {
-            throw new UnauthorizedError('Not Authorized');
-        }
+    if (!user) {
+        return next(new UnauthorizedError('Not Authorized'));
+    }
 
-        const {password: _, ...loggedUser} = user;
+    const { password: _, ...loggedUser } = user;
 
-        req.user = loggedUser;
+    req.user = loggedUser;
 
-        next();
+    next();
 }
