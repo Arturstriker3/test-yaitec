@@ -1,24 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { userRepository } from "../repositories/userRepositories";
-import { BadRequestError, UnauthorizedError } from "../helpers/api-errors";
+import { BadRequestError } from "../helpers/api-errors";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export class UserController {
-
-    /**
-     * @swagger
-     * tags:
-     *   - name: Authentication
-     *     description: Endpoints associated to user authentication
-     */
-
-    /**
-     * @swagger
-     * tags:
-     *   - name: User Profile
-     *     description: Endpoints associated to user profile
-     */
 
     /**
      * @swagger
