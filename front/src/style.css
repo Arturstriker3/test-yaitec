@@ -1,0 +1,36 @@
+@import"https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;1,700&display=swap";
+@import"https://fonts.googleapis.com/icon?family=Material+Icons";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', 'poppins',sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  
+}
+
+.va-input-label {
+  color: black !important;
+}
+
+.va-toast {
+  cursor: pointer !important;
+}
+
+.va-toast__content {
+  color: white !important;
+  font-weight: 600;
+}
+
+.va-input-wrapper__field {
+  filter: brightness(0.6);
+}
