@@ -4,8 +4,8 @@ import { interfacePages } from '../interface/interface';
 import pageNotFound from "@/core/pages/errors/404.vue"
 import Login from "@/core/pages/login/login.vue";
 import Register from "@/core/pages/register/register.vue"
-import Home from "@/core/pages/home/home.vue"
-import Users from "@/core/pages/users/users.vue"
+import Rag from "@/core/pages/rag/rag.vue"
+import Books from "@/core/pages/books/books.vue"
 
 import { createRouter, createWebHistory } from "vue-router";
 
@@ -15,8 +15,8 @@ const router = createRouter({
         { path: "/login", component: Login },
         { path: "/register", component: Register },
         { path: "/:pathMatch(.*)", component: pageNotFound },
-        { path: "/", component: Home },
-        { path: "/users", component: Users },
+        { path: "/", component: Rag },
+        { path: "/books", component: Books },
     ]
 });
 
