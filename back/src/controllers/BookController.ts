@@ -11,26 +11,24 @@ import { createRetrievalChain } from "langchain/chains/retrieval";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-import pdfParse from 'pdf-parse'; // Importando pdf-parse para extração de texto
+import pdfParse from 'pdf-parse';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single('file');
 
-// Tipo de documento esperado pelo MemoryVectorStore
 interface Document {
     pageContent: string;
-    metadata: Record<string, any>; // metadata não pode ser undefined
+    metadata: Record<string, any>;
 }
 
-// Função de divisão de texto
 function splitText(text: string, chunkSize: number): Document[] {
     const result: Document[] = [];
     for (let i = 0; i < text.length; i += chunkSize) {
         result.push({
             pageContent: text.substring(i, i + chunkSize),
-            metadata: {} // metadata sempre presente e não undefined
+            metadata: {}
         });
     }
     return result;
@@ -405,13 +403,11 @@ async performRAG(req: Request, res: Response, next: NextFunction) {
     try {
         const model = new ChatOpenAI({ model: "gpt-4" });
 
-        // Decodifica o PDF e extrai o texto usando pdf-parse
         const pdfBuffer = Buffer.from(book.fileBase64, 'base64');
         const data = await pdfParse(pdfBuffer);
         const extractedText = data.text;
 
-        // Divide o texto em chunks
-        const docs = splitText(extractedText, 1000); // Divida o texto em chunks de 1000 caracteres
+        const docs = splitText(extractedText, 1000);
 
         const vectorstore = await MemoryVectorStore.fromDocuments(
             docs,

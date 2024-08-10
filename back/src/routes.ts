@@ -12,7 +12,6 @@ const protectedRoutes = Router();
 routes.post('/register', new UserController().create);
 routes.post('/login', new UserController().login);
 
-// Rota para upload de livros
 routes.post('/book', upload.single('file'), new BookController().create);
 
 routes.get('/book/:id', new BookController().getOneBookById);
