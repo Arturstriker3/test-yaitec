@@ -1,10 +1,8 @@
 <script setup lang="ts" >
 import { useForm } from 'vuestic-ui';
 import { ref, onMounted, watch, computed } from 'vue';
-import usersCrud from "@/core/services/bookService";
 import { createToaster } from "@meforma/vue-toaster";
 import { useToast } from 'vuestic-ui'
-import EmailUtils from '@/core/utils/email.utils';
 import bookService from '@/core/services/bookService';
 
 const toaster = createToaster();
@@ -12,7 +10,6 @@ const { notify } = useToast();
 const isLoading = ref(false);
 const isDeletingCard = ref(false);
 const showDeleteModal = ref(false);
-const showEditModal = ref(false);
 const showCreateModal = ref(false);
 
 const { reset } = useForm('formRef',)
@@ -198,6 +195,47 @@ const openCardDeleteModalConfirm = (bookId: number, bookName: string) => {
   bookToDelete.value = `${bookName}`;
 }
 
+const openBookRag = (bookId: number, bookName: string) => {
+  showRagModal.value = true;
+  bookIdToDelete.value = bookId;
+  bookToDelete.value = `${bookName}`;
+}
+
+const showRagModal = ref(false);
+
+const ragQuestion = ref('');
+const ragMessage = ref('');
+const rag = ref({});
+
+const maskedValueRag = computed({
+  get() {
+    return ragQuestion.value
+  },
+  set(v) {
+    ragQuestion.value = v.slice(0, 100)
+  }
+})
+
+const startBookRag = (bookId: number) => {
+  isDeletingCard.value = true;
+  bookService.ragBook(bookId, ragQuestion.value)
+    .then((data: any) => {
+      notify({
+      message: 'RAG concluido com sucesso!',
+      position: 'top-left',
+      color: 'success',
+      });
+      rag.value = data.data;
+      ragMessage.value = rag.value.answer.answer;
+    })
+    .catch(() => {
+        reset()
+        toaster.error('Falha ao obter RAG sobre o livro!');
+    })
+    .finally(() => {isDeletingCard.value = false});
+    bookIdToDelete.value = 0;
+}
+
 </script>
 
 <template>
@@ -297,6 +335,7 @@ const openCardDeleteModalConfirm = (bookId: number, bookName: string) => {
                                 <VaButton
                                 round
                                 :disabled="!book.loaded || isDeletingCard"
+                                @click="openBookRag(book.id, book.title)"
                                 >
                                 <VaIcon
                                     :name="'chat'"
@@ -392,6 +431,48 @@ const openCardDeleteModalConfirm = (bookId: number, bookName: string) => {
             <input type="file" :disabled="isLoading" @change="handleFileChange">
 
           </VaForm>
+        </div>
+      </VaModal>
+      <VaModal
+        v-model="showRagModal"
+        hide-default-actions
+        blur
+        :mobileFullscreen=true
+        >
+        <div class="min-h-full bg-slate-100 border rounded-lg p-2" >
+          <div class="flex flex-col justify-center  items-center mb-4" >
+            <h3 class="font-medium flex flex-row items-center gap-2 text-lg ">
+              Pergunte sobre: {{ bookToDelete }}
+            </h3>
+            <div class="flex flex-row items-center w-full" >
+              <VaForm ref="editFormRef" class="flex flex-col w-full gap-2 justify-center items-center">
+                <VaInput
+                    v-model="maskedValueRag"
+                    label="Pergunta"
+                    :disabled="isLoading"
+                    :max-length="100"
+                    counter
+                    class="w-full md:w-2/4"
+                    strict-bind-input-value
+                  />
+              </VaForm>
+              <VaButton
+                round
+                :disabled="isLoading || isDeletingCard"
+                class="h-full"
+                @click="startBookRag(bookIdToDelete)"
+                >
+                <VaIcon
+                    :name="'search'"
+                    color="#ffffff"
+                    size="small"
+                />
+              </VaButton>
+            </div>
+            <div>
+              <p>{{ragMessage}}</p>
+            </div>
+          </div>
         </div>
       </VaModal>
     </div>

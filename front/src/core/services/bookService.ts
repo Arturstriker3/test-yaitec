@@ -22,7 +22,10 @@ class bookService {
         return axiosInstance.delete(`${this.urlBase}/book/${bookId}`);
     }
     
-    
+    ragBook(bookId: number, question: string) {
+
+        return axiosInstance.post(`${this.urlBase}/book/${bookId}/rag`, {question});
+    }
 }
 
 export default new bookService();
