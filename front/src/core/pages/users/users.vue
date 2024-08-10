@@ -80,7 +80,7 @@ const validateLength = (value: string) => {
 const getData = (page: number) => {
   isLoading.value = true;
   usersCrud.getUsers({page, per_page: resultsPerPage.value})
-    .then((response) => {
+    .then((response: any) => {
         cardsToShow.value = response.data.data;
         currentPage.value = response.data.page;
         totalPages.value = response.data.total_pages;

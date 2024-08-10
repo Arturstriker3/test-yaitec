@@ -41,7 +41,7 @@ const resultsPerPageOptions = [
     { label: '16', value: '16' },
 ];
 
-const bookIdToDelete = ref('');
+const bookIdToDelete = ref(0);
 const bookToDelete = ref('');
 const deleteMessage = computed(() => 
     `Você tem certeza que deseja deletar o livro ${bookToDelete.value}? Essa ação não poderá ser desfeita.`
@@ -85,22 +85,23 @@ const getData = (page: number) => {
     });
 }
 
-const deleteTheBook = (cardId: string) => {
+const deleteTheBook = (bookId: number) => {
   isDeletingCard.value = true;
-  usersCrud.deleteUser(cardId)
+  bookService.deleteBook(bookId)
     .then(() => {
       notify({
-      message: 'Usuário deletado com sucesso!',
+      message: 'Livro deletado com sucesso!',
       position: 'top-left',
       color: 'success',
       });
+      getData(currentPage.value);
     })
     .catch(() => {
         reset()
-        toaster.error('Falha ao deletar o usuário!');
+        toaster.error('Falha ao deletar o livro!');
     })
     .finally(() => {isDeletingCard.value = false});
-    cardIdToDelete.value = '';
+    bookIdToDelete.value = 0;
 }
 
 const createTheBook = () => {
@@ -125,7 +126,7 @@ const createTheBook = () => {
         toaster.error('Falha ao registrar o livro!');
     })
     .finally(() => {isDeletingCard.value = false});
-    bookIdToDelete.value = '';
+    bookIdToDelete.value = 0;
 }
 
 onMounted(() => {
@@ -189,6 +190,12 @@ function handleFileChange(event: Event) {
   if (target.files && target.files.length > 0) {
     selectedFile.value = target.files[0];
   }
+}
+
+const openCardDeleteModalConfirm = (bookId: number, bookName: string) => {
+  showDeleteModal.value = true;
+  bookIdToDelete.value = bookId;
+  bookToDelete.value = `${bookName}`;
 }
 
 </script>
@@ -302,11 +309,13 @@ function handleFileChange(event: Event) {
                                 round
                                 color="danger"
                                 :disabled="!book.loaded || isDeletingCard"
+                                @click="openCardDeleteModalConfirm(book.id, book.title)"
                                 >
                                 <VaIcon
                                     :name="'delete'"
                                     color="#ffffff"
                                     size="small"
+
                                 />
                                 </VaButton>
                             </div>
@@ -333,67 +342,16 @@ function handleFileChange(event: Event) {
           </div>
         </VaCard>
     </div>
-    <!-- <VaModal
+    <VaModal
         v-model="showDeleteModal"
         ok-text="Confirmar"
         cancel-text="Cancelar"
         :message="deleteMessage"
         blur
         :mobileFullscreen=false
-        @ok="deleteTheUser(cardIdToDelete)"
+        @ok="deleteTheBook(bookIdToDelete)"
         >
     </VaModal>
-    <VaModal
-        v-model="showEditModal"
-        ok-text="Confirmar"
-        cancel-text="Cancelar"
-        blur
-        :mobileFullscreen=true
-        @ok="updateTheUser()"
-        >
-        <div class="min-h-full bg-slate-100 border rounded-lg p-2" >
-          <div class="flex justify-center items-center mb-4" >
-            <h3 class="font-medium flex flex-row items-center gap-2 text-2xl">
-              Editando: <p class="font-semibold" >{{cardToEdit.first_name}} {{cardToEdit.last_name}}</p>
-            </h3>
-          </div>
-          <VaForm ref="editFormRef" class="flex flex-col w-full gap-2 justify-center items-center">
-            <VaInput
-              v-model="maskedValueFirstName"
-              :rules="[validateLength]"
-              label="Primeiro Nome"
-              :disabled="isLoading"
-              :max-length="25"
-              counter
-              class="w-full md:w-2/4"
-              strict-bind-input-value
-            />
-  
-            <VaInput
-              v-model="maskedValueLastName"
-              :rules="[validateLength]"
-              label="Último Nome"
-              :disabled="isLoading"
-              :max-length="25"
-              counter
-              class="w-full md:w-2/4"
-              strict-bind-input-value
-            />
-  
-            <VaInput
-              v-model="maskedValueEmail"
-              :rules="[validateLength, validateEmail]"
-              label="Email"
-              :disabled="true"
-              :max-length="50"
-              counter
-              class="w-full md:w-2/4"
-              strict-bind-input-value
-            />
-          </VaForm>
-        </div>
-    </VaModal>
-     -->
     <VaModal
         v-model="showCreateModal"
         ok-text="Confirmar"
