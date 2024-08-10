@@ -1,4 +1,4 @@
-const urlBase = "https://reqres.in/api";
+const urlBase = "http://localhost:5050";
 
 const apiService = {
     autentication: `${urlBase}`,
