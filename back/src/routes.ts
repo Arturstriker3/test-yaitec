@@ -21,6 +21,10 @@ routes.get('/books', new BookController().getPaginatedBooks);
 
 routes.delete('/book/:id', new BookController().deleteBook);
 
+routes.post('/book/:id/rag', new BookController().performRAG);
+
+routes.get('/book/:id/download', new BookController().downloadPDF);
+
 protectedRoutes.use(authMiddleware);
 
 // Protected

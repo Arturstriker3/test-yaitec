@@ -3,10 +3,38 @@ import { bookRepository } from "../repositories/bookRepositories";
 import { BadRequestError, NotFoundError } from '../helpers/api-errors';
 import multer from 'multer';
 
+import { ChatOpenAI } from "@langchain/openai";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { OpenAIEmbeddings } from "@langchain/openai";
+// import { RecursiveCharacterTextSplitter } from "langchain/textsplitters";
+import { createRetrievalChain } from "langchain/chains/retrieval";
+import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+import pdfParse from 'pdf-parse'; // Importando pdf-parse para extração de texto
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 export const uploadMiddleware = upload.single('file');
+
+// Tipo de documento esperado pelo MemoryVectorStore
+interface Document {
+    pageContent: string;
+    metadata: Record<string, any>; // metadata não pode ser undefined
+}
+
+// Função de divisão de texto
+function splitText(text: string, chunkSize: number): Document[] {
+    const result: Document[] = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+        result.push({
+            pageContent: text.substring(i, i + chunkSize),
+            metadata: {} // metadata sempre presente e não undefined
+        });
+    }
+    return result;
+}
 
 export class BookController {
 
@@ -309,5 +337,182 @@ export class BookController {
         }
 
         return res.status(200).json('Book deleted successfully');
+    }
+
+/**
+* @swagger
+* /book/{id}/rag:
+*   post:
+*     tags:
+*       - Books
+*     summary: Perform RAG on a specific book
+*     description: Retrieve answers about a specific book using RAG technique
+*     parameters:
+*       - in: path
+*         name: id
+*         required: true
+*         description: The ID of the book to retrieve
+*         schema:
+*           type: integer
+*           example: 1
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               question:
+*                 type: string
+*                 example: "What is the main theme of the book?"
+*     responses:
+*       200:
+*         description: Answer retrieved successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 answer:
+*                   type: string
+*                   example: "The main theme of the book is..."
+*       404:
+*         description: Book not found
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: "Book not found"
+*/
+
+async performRAG(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { question } = req.body;
+
+    if (!question) {
+        return next(new BadRequestError("A question is required to perform RAG."));
+    }
+
+    const book = await bookRepository.findOneBy({ id: Number(id) });
+
+    if (!book) {
+        return next(new NotFoundError("Book not found"));
+    }
+
+    try {
+        const model = new ChatOpenAI({ model: "gpt-4" });
+
+        // Decodifica o PDF e extrai o texto usando pdf-parse
+        const pdfBuffer = Buffer.from(book.fileBase64, 'base64');
+        const data = await pdfParse(pdfBuffer);
+        const extractedText = data.text;
+
+        // Divide o texto em chunks
+        const docs = splitText(extractedText, 1000); // Divida o texto em chunks de 1000 caracteres
+
+        const vectorstore = await MemoryVectorStore.fromDocuments(
+            docs,
+            new OpenAIEmbeddings()
+        );
+
+        const retriever = vectorstore.asRetriever();
+
+        const systemTemplate = [
+            `You are an assistant for question-answering tasks. `,
+            `Use the following pieces of retrieved context to answer `,
+            `the question. If you don't know the answer, say that you `,
+            `don't know. Use three sentences maximum and keep the `,
+            `answer concise.`,
+            `\n\n`,
+            `{context}`,
+        ].join("");
+
+        const prompt = ChatPromptTemplate.fromMessages([
+            ["system", systemTemplate],
+            ["human", "{input}"],
+        ]);
+
+        const questionAnswerChain = await createStuffDocumentsChain({ llm: model, prompt });
+        const ragChain = await createRetrievalChain({
+            retriever,
+            combineDocsChain: questionAnswerChain,
+        });
+
+        const results = await ragChain.invoke({
+            input: question,
+        });
+
+        return res.status(200).json({ answer: results });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+/**
+ * @swagger
+ * /book/{id}/download:
+ *   get:
+ *     tags:
+ *       - Books
+ *     summary: Download a book's PDF file
+ *     description: Retrieve and download the PDF file of a specific book by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the book to download
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: PDF file retrieved successfully
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Book not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Book not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Error retrieving PDF file"
+ */
+    async downloadPDF(req: Request, res: Response, next: NextFunction) {
+        const { id } = req.params;
+
+        const book = await bookRepository.findOneBy({ id: Number(id) });
+
+        if (!book) {
+            return next(new NotFoundError('Book not found'));
+        }
+
+        try {
+            const pdfBuffer = Buffer.from(book.fileBase64, 'base64');
+
+            res.setHeader('Content-Disposition', `attachment; filename=${book.title}.pdf`);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.send(pdfBuffer);
+        } catch (error) {
+            return next(error);
+        }
     }
 }
