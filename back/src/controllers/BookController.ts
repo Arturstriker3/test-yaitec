@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import { bookRepository } from "../repositories/bookRepositories";
 import { BadRequestError, NotFoundError } from '../helpers/api-errors';
 import multer from 'multer';
-import { error } from 'console';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
