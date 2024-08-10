@@ -105,27 +105,25 @@ const deleteTheBook = (cardId: string) => {
 
 const createTheBook = () => {
   isDeletingCard.value = true;
-  usersCrud.createUser(cardToEdit.value.first_name, cardToEdit.value.last_name, cardToEdit.value.email)
+  bookService.createBook( bookToEdit.value.title, bookToEdit.value.author, selectedFile.value)
     .then(() => {
       notify({
-      message: 'Usuário criado com sucesso!',
+      message: 'Livro registrado com sucesso!',
       position: 'top-left',
       color: 'success',
       });
     })
     .catch(() => {
         reset()
-        toaster.error('Falha ao criar o usuário!');
+        toaster.error('Falha ao registrar o livro!');
     })
     .finally(() => {isDeletingCard.value = false});
-    cardIdToDelete.value = '';
+    bookIdToDelete.value = '';
 }
 
 onMounted(() => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   getData(currentPage.value)
-  console.log('books', booksToShow.value)
-  console.log('filteredBooks', filteredBooks.value)
 });
 
 const filteredBooks = computed(() => {
@@ -138,6 +136,52 @@ const filteredBooks = computed(() => {
 
 const changePage = (page: number) => {
   getData(page);
+}
+
+type BookToSend = {
+    title: string;
+    author: string;
+    file: any;
+};
+
+const bookToEdit = ref({
+    title: '',
+    author: '',
+    file: null as any
+} as BookToSend);
+
+const openCardCreateModalConfirm = () => {
+  showCreateModal.value = true;
+  bookToEdit.value.author = '';
+  bookToEdit.value.title = '';
+  selectedFile.value = null;
+}
+
+const maskedValueTitle = computed({
+  get() {
+    return bookToEdit.value.title
+  },
+  set(v) {
+    bookToEdit.value.title = v.slice(0, 50)
+  }
+})
+
+const maskedValueAuthor = computed({
+  get() {
+    return bookToEdit.value.author
+  },
+  set(v) {
+    bookToEdit.value.author = v.slice(0, 50)
+  }
+})
+
+const selectedFile = ref<File | null>(null);
+
+function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    selectedFile.value = target.files[0];
+  }
 }
 
 </script>
@@ -167,6 +211,7 @@ const changePage = (page: number) => {
                 round
                 :disabled="isLoading || isDeletingCard"
                 class="h-full"
+                @click="openCardCreateModalConfirm()"
                 >
                 <VaIcon
                     :name="'add'"
@@ -240,7 +285,7 @@ const changePage = (page: number) => {
                                 :disabled="!book.loaded || isDeletingCard"
                                 >
                                 <VaIcon
-                                    :name="'edit'"
+                                    :name="'chat'"
                                     color="#ffffff"
                                     size="small"
                                 />
@@ -341,56 +386,55 @@ const changePage = (page: number) => {
           </VaForm>
         </div>
     </VaModal>
+     -->
     <VaModal
         v-model="showCreateModal"
         ok-text="Confirmar"
         cancel-text="Cancelar"
         blur
         :mobileFullscreen=true
-        @ok="createTheUser()"
+        @ok="createTheBook()"
         >
         <div class="min-h-full bg-slate-100 border rounded-lg p-2" >
           <div class="flex justify-center items-center mb-4" >
             <h3 class="font-medium flex flex-row items-center gap-2 text-2xl ">
-              Criar Usuário
+              Registrar Livro
             </h3>
           </div>
           <VaForm ref="editFormRef" class="flex flex-col w-full gap-2 justify-center items-center">
             <VaInput
-              v-model="maskedValueFirstName"
+              v-model="maskedValueTitle"
               :rules="[validateLength]"
-              label="Primeiro Nome"
-              :disabled="isLoading"
-              :max-length="25"
-              counter
-              class="w-full md:w-2/4"
-              strict-bind-input-value
-            />
-  
-            <VaInput
-              v-model="maskedValueLastName"
-              :rules="[validateLength]"
-              label="Último Nome"
-              :disabled="isLoading"
-              :max-length="25"
-              counter
-              class="w-full md:w-2/4"
-              strict-bind-input-value
-            />
-  
-            <VaInput
-              v-model="maskedValueEmail"
-              :rules="[validateLength, validateEmail]"
-              label="Email"
+              label="Título"
               :disabled="isLoading"
               :max-length="50"
               counter
               class="w-full md:w-2/4"
               strict-bind-input-value
             />
+  
+            <VaInput
+              v-model="maskedValueAuthor"
+              :rules="[validateLength]"
+              label="Autor"
+              :disabled="isLoading"
+              :max-length="50"
+              counter
+              class="w-full md:w-2/4"
+              strict-bind-input-value
+            />
+  
+            <VaInput
+              :disabled="isLoading"
+              @change="handleFileChange"
+              type="file"
+              accept=".pdf"
+              class="w-full md:w-2/4"
+              strict-bind-input-value
+            />
           </VaForm>
         </div>
-      </VaModal> -->
+      </VaModal>
     </div>
   </template>
   

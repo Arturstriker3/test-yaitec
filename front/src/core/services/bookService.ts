@@ -8,6 +8,15 @@ class bookService {
         const query = `?page=${page}&limit=${limit}`;
         return axiosInstance.get(`${this.urlBase}/books${query}`);
     }
+
+    createBook(title: string, author: string, file: File) {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('author', author);
+        formData.append('file', file);
+
+        return axiosInstance.post(`${this.urlBase}/books`, formData);
+    }
     
     getUser(userId: string) {
         return axiosInstance.get(`${this.urlBase}/users/${userId}`);
