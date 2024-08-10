@@ -15,7 +15,7 @@ class bookService {
         formData.append('author', author);
         formData.append('file', file);
 
-        return axiosInstance.post(`${this.urlBase}/books`, formData);
+        return axiosInstance.post(`${this.urlBase}/book`, formData);
     }
     
     getUser(userId: string) {

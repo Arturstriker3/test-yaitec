@@ -72,7 +72,7 @@ const getData = (page: number) => {
   isLoading.value = true;
   bookService.getBooks({ page, limit: resultsPerPage.value })
     .then((response: any) => {
-      booksToShow.value = response.data.books; // Exibindo todos os livros
+      booksToShow.value = response.data.books;
       currentPage.value = response.data.currentPage;
       totalPages.value = response.data.totalPages;
     })
@@ -105,6 +105,12 @@ const deleteTheBook = (cardId: string) => {
 
 const createTheBook = () => {
   isDeletingCard.value = true;
+
+  if (!selectedFile.value) {
+    toaster.error('Por favor, selecione um arquivo antes de criar o livro.');
+    return;
+  }
+
   bookService.createBook( bookToEdit.value.title, bookToEdit.value.author, selectedFile.value)
     .then(() => {
       notify({
@@ -112,6 +118,7 @@ const createTheBook = () => {
       position: 'top-left',
       color: 'success',
       });
+      getData(currentPage.value);
     })
     .catch(() => {
         reset()
@@ -147,7 +154,7 @@ type BookToSend = {
 const bookToEdit = ref({
     title: '',
     author: '',
-    file: null as any
+    file: File
 } as BookToSend);
 
 const openCardCreateModalConfirm = () => {
@@ -423,15 +430,9 @@ function handleFileChange(event: Event) {
               class="w-full md:w-2/4"
               strict-bind-input-value
             />
-  
-            <VaInput
-              :disabled="isLoading"
-              @change="handleFileChange"
-              type="file"
-              accept=".pdf"
-              class="w-full md:w-2/4"
-              strict-bind-input-value
-            />
+            
+            <input type="file" :disabled="isLoading" @change="handleFileChange">
+
           </VaForm>
         </div>
       </VaModal>
