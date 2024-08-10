@@ -70,17 +70,19 @@ const validateLength = (value: string) => {
 
 const getData = (page: number) => {
   isLoading.value = true;
-  bookService.getBooks({page, per_page: resultsPerPage.value})
-    .then((response:any) => {
-        booksToShow.value = response.data.data;
-        currentPage.value = response.data.page;
-        totalPages.value = response.data.total_pages;
+  bookService.getBooks({ page, limit: resultsPerPage.value })
+    .then((response: any) => {
+      booksToShow.value = response.data.books; // Exibindo todos os livros
+      currentPage.value = response.data.currentPage;
+      totalPages.value = response.data.totalPages;
     })
     .catch(() => {
-        reset()
-        toaster.error('Falha ao carregar os livros.');
+      reset();
+      toaster.error('Falha ao carregar os livros.');
     })
-    .finally(() => {isLoading.value = false});
+    .finally(() => {
+      isLoading.value = false;
+    });
 }
 
 const deleteTheBook = (cardId: string) => {
@@ -122,7 +124,21 @@ const createTheBook = () => {
 onMounted(() => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   getData(currentPage.value)
+  console.log('books', booksToShow.value)
+  console.log('filteredBooks', filteredBooks.value)
 });
+
+const filteredBooks = computed(() => {
+  const searchText = form.value.cardText.toLowerCase();
+  return booksToShow.value.filter(book => 
+    book.title.toLowerCase().includes(searchText) || 
+    book.author.toLowerCase().includes(searchText)
+  );
+});
+
+const changePage = (page: number) => {
+  getData(page);
+}
 
 </script>
 
@@ -150,7 +166,6 @@ onMounted(() => {
               <VaButton
                 round
                 :disabled="isLoading || isDeletingCard"
-                @click="openCardCreateModalConfirm()"
                 class="h-full"
                 >
                 <VaIcon
@@ -196,18 +211,18 @@ onMounted(() => {
             <VaCard class="px-6 py-4 rounded-lg w-full mx-auto" >
               <section id="Users"
               class="mt-10 w-fit mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4   justify-items-center justify-center gap-y-16 gap-x-14 mb-10">
-                <div v-for="card in filteredCards" :key="card.id" class="w-72 bg-slate-50 shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl border border-gray-300 fade-in">
+                <div v-for="book in filteredBooks" :key="book.id" class="w-72 bg-slate-50 shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl border border-gray-300 fade-in">
                   <div class="text-center py-2">
-                    <p class="text-lg font-bold text-black truncate block capitalize">{{ card.first_name }}</p>
+                    <p class="text-lg font-bold text-black truncate block capitalize">{{ book.title }}</p>
                   </div>
   
                   <div class="flex gap-4 object-cover">
                     <VaImage
                       fit="scale-down"
                       class="h-60 w-72 object-cover rounded-t-xl"
-                      :src="card.avatar"
+                      src="https://picsum.photos/200"
                       lazy
-                      @loaded="card.loaded = true"
+                      @loaded="book.loaded = true"
                       >
                       <template #loader>
                         <VaProgressCircle indeterminate />
@@ -217,13 +232,12 @@ onMounted(() => {
                   
                   <div class="px-4 py-3 w-72">
                       <div class="flex items-center">
-                          <p class="text-xs font-semibold text-black cursor-auto my-3">{{card.first_name}} {{card.last_name}}</p>
+                          <p class="text-xs font-semibold text-black cursor-auto my-3">{{ book.author }}</p>
                           <div class="ml-auto">
                             <div class="flex flex-row gap-4" >
                                 <VaButton
                                 round
-                                :disabled="!card.loaded || isDeletingCard"
-                                @click="openCardEditModalConfirm(card.id)"
+                                :disabled="!book.loaded || isDeletingCard"
                                 >
                                 <VaIcon
                                     :name="'edit'"
@@ -235,8 +249,7 @@ onMounted(() => {
                                 <VaButton
                                 round
                                 color="danger"
-                                :disabled="!card.loaded || isDeletingCard"
-                                @click="openCardDeleteModalConfirm(card.id, card.first_name, card.last_name)"
+                                :disabled="!book.loaded || isDeletingCard"
                                 >
                                 <VaIcon
                                     :name="'delete'"
