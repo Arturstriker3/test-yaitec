@@ -1,8 +1,13 @@
 import apiService from "../api/api-service";
 import axiosInstance from "../api/axios";
 
-class userAutenticationService {
+class bookService {
     urlBase = apiService.usersCrud;
+
+    getBooks({ page = 1, limit  = 6 }: { page?: number; limit?: number; } = {}) {
+        const query = `?page=${page}&limit=${limit}`;
+        return axiosInstance.get(`${this.urlBase}/books${query}`);
+    }
     
     getUser(userId: string) {
         return axiosInstance.get(`${this.urlBase}/users/${userId}`);
@@ -36,4 +41,4 @@ class userAutenticationService {
     }
 }
 
-export default new userAutenticationService();
+export default new bookService();

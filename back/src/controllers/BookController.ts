@@ -242,8 +242,8 @@ export class BookController {
 *         description: Bad request
 */
     async getPaginatedBooks(req: Request, res: Response, next: NextFunction) {
-        const page = parseInt(req.headers['page'] as string);
-        const limit = parseInt(req.headers['limit'] as string);
+        const page = parseInt(req.query.page as string);
+        const limit = parseInt(req.query.limit as string);
 
         if (isNaN(page) || page <= 0) {
             return next(new BadRequestError('Invalid page number'));
