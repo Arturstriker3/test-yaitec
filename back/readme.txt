@@ -1,15 +1,15 @@
+# PostgreSQL DB
+DB_HOST = localhost
+DB_port = 5432
+DB_USER = admin
+DB_PASS = admin
+DB_NAME = yaitec
 
-Variáveis de Desenvolvimento
+# API Port
+PORT = 5050
 
-Acesso ao Banco de Dados
-DB_HOST
-DB_port
-DB_USER
-DB_PASS
-DB_NAME
+# Key for JWT Assymetric Encryption
+JWT_SECRET = yaitec
 
-Porta da Api
-PORT
-
-Senha de Assinatura JWT da Api
-JWT_SECRET
+# Key OpenAi
+OPENAI_API_KEY=
