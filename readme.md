@@ -40,10 +40,4 @@ Frontend = 5173
 
  O banco de dados usado foi o postgreSql rodando em um container docker. Para isso é necessário ter o docker instalado na máquina e o docker composer para executar o comando que rodar o banco de dados e o pgAdmin para melhor controle e visualização do mesmo.
 
- Na pasta "back", encontra-se o .env com informações para rodar localmente na máquina. Se faz necessário colocar a OPENAI_API_KEY para a funcionalidade de RAG ocorrer.  
-
- **Modelo Relacional do Banco**
-<div align="center">
-<img src="https://github.com/Arturstriker3/API-JWT-Node.js-TypeScript-TypeORM/assets/59231364/01ff4b6d-c238-4fbc-97e7-0aa817345c09" width="auto" height="auto" />
-</div>
-<br/>
+ Na pasta "back", encontra-se o .env com informações para rodar localmente na máquina. Se faz necessário colocar a OPENAI_API_KEY para a funcionalidade de RAG ocorrer.
