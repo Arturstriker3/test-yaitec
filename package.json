@@ -2,13 +2,16 @@
     "name": "test-yaitec",
     "version": "1.0.0",
     "scripts": {
-      "start:db": "cd postDB && docker-compose up -d",
-      "install:db": "cd postDB && docker-compose up -d && docker-compose exec postgres npm install",
-      "install:back": "cd back && npm install",
-      "install:front": "cd front && npm install",
-      "install:full": "npm run install:back && npm run install:front",
-      "start:back": "cd back && npm run migration:generate && npm run migration:run && npm run dev",
-      "start:front": "cd front && npm run dev",
-      "start": "npm run start:db && npm run start:back && npm run start:front"
+        "start:db": "cd postDB && docker-compose up -d",
+        "install:back": "cd back && npm install",
+        "install:front": "cd front && npm install",
+        "install:full": "npm run install:back && npm run install:front",
+        "install:migrations": "cd back && npm run migration:generate && npm run migration:run",
+        "start:back": "cd back && npm run dev",
+        "start:front": "cd front && npm run dev",
+        "start": "concurrently \"npm run start:back\" \"npm run start:front\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
     }
-  }
+}
