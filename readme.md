@@ -22,6 +22,11 @@ npm run start:db
 npm run install:full
 ```
 
+## Instalar migrations para o banco de dados
+```
+npm run install:migrations
+```
+
 ## Compilar e rodar todo projeto
 ```
 npm run start
