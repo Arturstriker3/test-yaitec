@@ -243,7 +243,7 @@ const startBookRag = (bookId: number) => {
       <div class="flex justify-center items-center" >
         <VaCard class="mt-4 px-6 py-4 rounded-lg w-screen mx-auto" >
           <div class="flex flex-col items-center justify-center" >
-            <p class="text-center text-lg font-semibold" >Usuários</p>
+            <p class="text-center text-lg font-semibold" >Livros</p>
           </div>
           <div class="mb-6">
             <VaDivider />

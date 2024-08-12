@@ -12,28 +12,28 @@ git clone https://github.com/Arturstriker3/test-yaitec
 cd .\test-yaitec\ 
 ```
 
-### Primeiro com Docker e Docker Composer instalado execute o .yml para rodar o container do banco de dados
+## Primeiro com Docker e Docker Composer instalado execute o .yml para rodar o container do banco de dados
 ```
 npm run start:db
 ```
 
-### Instalar dependências do back e front
+## Instalar dependências do back e front
 ```
 npm run install:full
 ```
 
-### Compilar e rodar todo projeto
+## Compilar e rodar todo projeto
 ```
 npm run start
 ```
 
-### Portas que o projeto usa
+## Portas que o projeto usa
 
-O projeto usa por padrão essas portas, caso já estejam recomendo trocar elas.
+O projeto usa por padrão essas portas, caso já estejam usadas recomendo trocar elas.
 ```
 DB = 5432
 Backend = 5050
-Frontend = 
+Frontend = 5173
 ```
 
 ### Necessidades do projeto
