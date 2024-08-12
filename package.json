@@ -5,7 +5,7 @@
         "start:db": "cd postDB && docker-compose up -d",
         "install:back": "cd back && npm install",
         "install:front": "cd front && npm install",
-        "install:full": "npm run install:back && npm run install:front",
+        "install:full": "npm install && npm run install:back && npm run install:front",
         "install:migrations": "cd back && npm run migration:generate && npm run migration:run",
         "start:back": "cd back && npm run dev",
         "start:front": "cd front && npm run dev",
